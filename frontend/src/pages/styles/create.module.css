@@ -1,0 +1,149 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+  
+.heading {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #4caf50;
+}
+  
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.desCon {
+  width: 100%;
+  display: flex;
+  position: relative;
+}
+
+.desc {
+  width: 60%;
+}
+
+.camera {
+  width: 40%;
+}
+
+.camera img {
+  max-width: 60%;
+  height: auto; 
+  display: block; 
+  margin: 0 auto; 
+  cursor: pointer;
+}
+
+.camera img:hover{
+  opacity: 0.8;
+  transition: 0.3s;
+}
+
+.line {
+  margin: 30px 0;
+}
+
+.label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+  color: #4caf50;
+}
+  
+.input, .textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.input:focus, .textarea:focus {
+  outline: 1px solid #4caf50; 
+  border-color: #4caf50; 
+}
+
+
+.textarea {
+  height: 100%;
+  resize: none;
+}
+  
+
+/* - - - - - - - - - - - - - - */
+.questions {
+  width: 100%;
+}
+
+.questions h3{
+  color:#45a049;
+  display: block;
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+  
+.questionBlock {
+  margin-bottom: 20px;
+}
+
+.answerBlock {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 20px;
+}
+
+.letters {
+  padding: 5px;
+  font-weight: 500;
+}
+
+.option {
+  margin-top: 10px;
+}
+  
+.addButton, .submitButton {
+  border: 2px solid #4caf50;
+  color: #4caf50;
+  padding: 10px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  text-align: center;
+  font-weight: 550;
+  width: 50%;
+}
+  
+.addButton:hover, .submitButton:hover {
+  background-color: #45a050;
+  color: #fff;
+}
+
+.addSub {
+  display: flex;
+  gap: 5px;
+  padding: 0 20px;
+}
+.subAdd {
+  display: flex;
+  gap: 5px;
+}
+.submitButton {
+  width: 100%;
+  background: transparent;
+  font-size: 18px;
+  margin-top: 20px;
+}
+  

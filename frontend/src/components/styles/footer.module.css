@@ -1,0 +1,38 @@
+.footer {
+  background-color: #333; /* Dark background */
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+}
+  
+.content {
+  max-width: 1200px; /* Limit max width */
+  margin: 0 auto; /* Center content */
+  padding: 0 20px; /* Side padding */
+}
+  
+.nav {
+  display: flex;
+  justify-content: center; /* Center nav links */
+  gap: 15px; /* Space between links */
+  margin-top: 10px; /* Space above nav */
+}
+  
+.link {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+  
+.link:hover {
+  color: #4caf50; /* Change color on hover */
+}
+  
+/* Responsive styles */
+@media (max-width: 768px) {
+  .nav {
+    flex-direction: column; /* Stack links on small screens */
+    gap: 5px; /* Smaller gap */
+  }
+}
+  

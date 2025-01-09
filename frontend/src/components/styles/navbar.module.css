@@ -1,0 +1,130 @@
+@font-face {
+  font-family: 'Quicksand';
+  src: url('../../fonts/QuickSand/Quicksand-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #4caf50; /* Green background */
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+  
+.brand {
+  font-size: 28px;
+  margin-right: 15px;
+}
+
+.brand a {
+  color: #fff;
+}
+
+.brand label {
+  font-family: Quicksand, sans-serif;
+  cursor: pointer;
+}
+
+.links {
+  display: flex;
+  gap: 15px; /* Spacing between links */
+}
+  
+.link {
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
+  padding: 0 5px;
+  transition: background-color 0.3s;
+}
+  
+.link:hover {
+  color:#c8ffc8;
+  transition: 0.3s ease;
+  font-weight: 500;
+}
+
+.auth {
+  margin-left: auto;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: white;
+}
+  
+.auth_link {
+  color: white;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+  
+.auth_link:hover {
+  background-color: rgba(255, 255, 255, 0.2);/* Lighten on hover */
+}
+  
+.menu_icon {
+  display: none; /* Hidden by default */
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.center { 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: #4caf50; /* Green background */
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.username {
+  font-weight: bold;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .links {
+    display: none; /* Hide desktop links on mobile */
+  }
+  
+  .menu_icon {
+    display: block; /* Show hamburger icon */
+  }
+  
+  .mobile_links {
+    display: flex; /* Show mobile links */
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    background-color: #4caf50; /* Same background for mobile menu */
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mobile_links .link {
+    padding: 10px; /* More padding for mobile links */
+  }
+}
+  
