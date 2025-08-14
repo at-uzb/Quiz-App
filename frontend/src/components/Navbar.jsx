@@ -1,6 +1,5 @@
 import { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import SearchBar from './SearchBar';
 import styles from './styles/navbar.module.css'; 
 import AuthContext from '../context/AuthContext';
 
@@ -21,7 +20,7 @@ function Navbar() {
     <nav className={styles.navbar}>
       <div className={styles.brand}>
         <Link to="/">
-          <label>IlmSari</label>
+          <label>Quiz-App</label>
         </Link>
       </div>
       <div className={`${styles.links} ${menuOpen ? styles['mobile_links'] : ''}`}>
@@ -30,12 +29,11 @@ function Navbar() {
               onClick={closeMenu}>
           Create Quizz
         </Link>
-        <a href="#" className={styles.link} onClick={closeMenu}>Ikkinchi tab</a>
-        <SearchBar />
+        {/* <a href="#" className={styles.link} onClick={closeMenu}>Ikkinchi tab</a> */}
       </div>
       {user ? (
         <Link to={"/" + user.username} className={styles.auth}>
-          <img src={"http://127.0.0.1:8000"+user.profile_image} alt="User avatar" className={styles.avatar} />
+          <img src={user.photo} alt="User avatar" className={styles.avatar} />
           <span className={styles.username}>{user.username}</span>
         </Link>
       ):(
@@ -55,7 +53,7 @@ function NavbarAuth() {
     <div className={styles.center}>
       <div className={styles.brand}>
         <Link to="/">
-          <label>IlmSari</label>
+          <label>Quiz-App</label>
         </Link>
       </div>
     </div>

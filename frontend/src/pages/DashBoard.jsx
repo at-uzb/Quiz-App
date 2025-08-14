@@ -16,7 +16,7 @@ function DashBoard() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await api.get(`/users/user/${username}/`)
+      const response = await api.get(`/users/${username}/`)
       if (response.status === 200){
         setProfile(response.data)
       } else {
@@ -38,14 +38,14 @@ function DashBoard() {
         />
 
         <div className={styles.userPhoto}>
-          <img src={url + profile?.profile_image} alt='user photo'/>
+          <img src={profile?.photo} alt='user photo'/>
         </div>
         <span className={styles.username}>
             <span>{"@ "+profile?.username}</span>
         </span>
-        <span className={styles.bio}>
+        {/* <span className={styles.bio}>
           {" " + profile?.bio}
-        </span>
+        </span> */}
       </div>
       <div className={styles.results}>
         <span className={styles.name}>
@@ -53,15 +53,7 @@ function DashBoard() {
         </span>
 
         <div>
-          Number of Quizzes complited 
-        </div>
-
-        <div>
-          Avarage quizz percentage
-        </div>
-
-        <div>
-          Recent Achievements
+          Avarage quiz percantage: {profile?.average_quiz_percentage}
         </div>
       </div>
       <div className={styles.follow}>

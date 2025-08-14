@@ -3,6 +3,7 @@ import {StrictMode} from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { AuthProvider } from "./context/AuthContext";
+import { useParams } from "react-router-dom";
 import QuizList from './QuizList';
 import Quiz from './Quiz';
 import { Navbar, NavbarAuth } from './components/Navbar';
@@ -18,9 +19,13 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: 
-      <div>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         <AuthProvider>
-          <Navbar/><Outlet/><Footer/>
+          <Navbar/>
+          <div style={{flex: 1}}>
+            <Outlet/>
+          </div>
+          <Footer/>
         </AuthProvider>
       </div>,
     children: [
@@ -34,7 +39,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/quiz/:quizId",
-        element: <Quiz />
+        element:<Quiz/>
       },
       {
         path: "/:username",
@@ -45,10 +50,10 @@ const router = createBrowserRouter([
   {
     path: "/auth",
     element:
-      <div>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
         <AuthProvider>
         <NavbarAuth />
-        <div className="background">
+        <div className="background" style={{flex: 1}}>
           <Outlet/>
         </div>
         <Footer/>

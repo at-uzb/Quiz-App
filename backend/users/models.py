@@ -1,64 +1,58 @@
 import uuid
 import random
-from django.db import models
 from datetime import timedelta
+from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-from .achievements import award_achievements
-
-class BaseModel(models.Model):
-    id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False, primary_key=True)
-    created_time = models.DateTimeField(auto_now_add=True)
-    updated_time = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
 
 
-class User(AbstractUser, BaseModel):
+class User(AbstractUser):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
     email = models.EmailField(unique=True)
     verified = models.BooleanField(default=False)
     date_of_birth = models.DateField(null=True, blank=True)
     photo = models.ImageField(
         upload_to='profile-images/',
         default="images/default_user.png"
-        )
-    bio = models.CharField(max_length=350, default="")
-    quizzes_completed = models.PositiveIntegerField(default=0)
-    achievements = models.TextField(blank=True)
-    average_quiz_percentage = models.FloatField(default=0.0)
+    )
+    bio = models.CharField(max_length=350, default="", blank=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.username
-    
+        return self.email
+
     def create_verify_code(self):
-        code = "".join([str(random.randint(0, 10000) % 10) for _ in range(5)])
+        code = f"{random.randint(0, 9999):04}"
         EmailConfirmation.objects.create(
-            user_id=self.id,
+            user=self,
             code=code
         )
         return code
-    
-    def update_quiz_stats(self, score):
-        total_quizzes = self.quizzes_completed
-        self.average_quiz_percentage = (
-            (self.average_quiz_percentage * total_quizzes) + score
-        ) / (total_quizzes + 1)
-        self.quizzes_completed += 1
-        self.save()
 
-        award_achievements(self, score)
+    @property
+    def is_verified(self):
+        return self.verified
 
 
-class EmailConfirmation(BaseModel):
+class EmailConfirmation(models.Model):
     code = models.CharField(max_length=4)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='verify')
-    expiration_time = models.DateTimeField(null=True)
+    expiration_time = models.DateTimeField(null=True, db_index=True)
     is_confirmed = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('user', 'code')
+
     def __str__(self):
-        return str(self.user.__str__())
-    
+        return str(self.user)
+
     def save(self, *args, **kwargs):
-        self.expiration_time = timezone.now() + timedelta(minutes=5)
-        super(EmailConfirmation, self).save(*args, **kwargs)
+        if not self.pk:
+            self.expiration_time = timezone.now() + timedelta(minutes=5)
+        super().save(*args, **kwargs)

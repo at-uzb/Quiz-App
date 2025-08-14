@@ -1,13 +1,13 @@
 import React, { useContext, useState } from 'react';
 import styles from './styles/create.module.css';
-
+import { useNavigate } from "react-router-dom"
 import api from '../api/api';
 import AuthContext from '../context/AuthContext';
 
 function CreateQuiz() {
   const { loading } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
-
+  let navigate = useNavigate();
   const [quizData, setQuizData] = useState({
     title: '',
     description: '',
@@ -145,7 +145,9 @@ function CreateQuiz() {
           description: quizData.description,
           questions: quizData.questions
          });
+      console.log(JSON.stringify(quizData, null, 2));
       console.log('Quiz submitted successfully:', response.data);
+      navigate(`/quiz/${response.data.id}`)
     } catch (error) {
       console.error('Error submitting quiz:', error);
     } finally {

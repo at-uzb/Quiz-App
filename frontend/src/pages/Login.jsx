@@ -13,10 +13,10 @@ function Login() {
       <h2 className={styles.title}>Login to IlmSari</h2>
       <form onSubmit={loginUser} className={styles.form}>
         <div className={styles.inputGroup}>
-          <label htmlFor="username">Email</label>
+          <label htmlFor="email">Email</label>
           <input 
-            type="username" 
-            name="username" 
+            type="email" 
+            name="email" 
             placeholder="Email or username" 
             autoComplete='on'
             required 

@@ -1,10 +1,10 @@
+from django.conf import settings
 from django.db import models
-from users.models import User
 
 
 class Quiz(models.Model):
     owner = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name='quizzes',
         on_delete=models.CASCADE
     )
@@ -25,7 +25,7 @@ class Question(models.Model):
         Quiz,
         related_name='questions',
         on_delete=models.CASCADE
-        )
+    )
     question_text = models.CharField(max_length=255)
 
     def __str__(self):
@@ -37,7 +37,7 @@ class Answer(models.Model):
         Question,
         related_name='answers',
         on_delete=models.CASCADE
-        )
+    )
     answer_text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
 
@@ -47,7 +47,7 @@ class Answer(models.Model):
 
 class QuizResult(models.Model):
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name='quiz_results',
         on_delete=models.CASCADE
     )
@@ -58,10 +58,12 @@ class QuizResult(models.Model):
     )
     score = models.FloatField()
     completed_at = models.DateTimeField(auto_now_add=True)
-    answers = models.JSONField(default=dict) 
-    
+    answers = models.JSONField(default=dict)
+
     class Meta:
-        unique_together = ('user', 'quiz')
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'quiz'], name='unique_user_quiz_result')
+        ]
 
     def __str__(self):
         return f"{self.user} - {self.quiz} - {self.score}%"

@@ -5,7 +5,7 @@ function Footer() {
   return (
     <footer className={styles.footer}>
       <div className={styles.content}>
-        <p>&copy; 2024 IlmSari. All rights reserved.</p>
+        <p>&copy; 2025 Quiz-App by Abdulaziz. All rights reserved.</p>
         <nav className={styles.nav}>
           <a href="#" className={styles.link}>Privacy Policy</a>
           <a href="#" className={styles.link}>Terms of Service</a>

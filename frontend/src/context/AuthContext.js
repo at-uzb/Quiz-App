@@ -20,7 +20,7 @@ export const AuthProvider = ({children}) => {
         e.preventDefault()
 
         let response = await api.post("users/login/", {
-            username: e.target.username.value, 
+            email: e.target.email.value,
             password: e.target.password.value
         })
 
@@ -28,7 +28,7 @@ export const AuthProvider = ({children}) => {
             setAuthToken(response.data.access)
             localStorage.setItem("access", response.data.access)
             localStorage.setItem("refresh", response.data.refresh)
-            getUserData();
+            await getUserData();
             setAuthTokens(response.data.refresh)
             navigate("/")
         } else {
@@ -78,6 +78,7 @@ export const AuthProvider = ({children}) => {
         let response = await api.get("users/dashboard/")
         if (response.status === 200 ) {
             setUser(response.data)
+
         } else {
             alert("Something went wrong")
         }
@@ -85,28 +86,55 @@ export const AuthProvider = ({children}) => {
 
     let contextData = {
         user: user,
+        setUser:setUser,
         loginUser: LoginUser,
         logoutUser: LogoutUser,
         loading: loading
     }
-
-    useEffect(()=>{
-
-        if ( loading && authTokens ) {
-            updateToken()
-        } else if (!authTokens) {
-            setLoading(false)
-        }
-
-        let interval = setInterval(()=> {
-            if(authTokens){
-                updateToken()
+    useEffect(() => {
+        const initAuth = async () => {
+            if (authTokens) {
+                try {
+                    await updateToken(); 
+                    await getUserData(); 
+                } catch (error) {
+                    console.error("Failed to initialize auth:", error);
+                    LogoutUser();
+                }
+            } else {
+                setLoading(false);
             }
-        }, 1500000)
+        };
+
+        initAuth();
+
+        // Refresh token periodically
+        const interval = setInterval(() => {
+            if (authTokens) {
+                updateToken();
+            }
+        }, 1500000);
+
+        return () => clearInterval(interval);
+    }, [authTokens]);
+    // useEffect(()=>{
+
+    //     if ( loading && authTokens ) {
+    //         updateToken()
+    //         getUserData()
+    //     } else if (!authTokens) {
+    //         setLoading(false)
+    //     }
+
+    //     let interval = setInterval(()=> {
+    //         if(authTokens){
+    //             updateToken()
+    //         }
+    //     }, 1500000)
         
-        return () => clearInterval(interval)
+    //     return () => clearInterval(interval)
         
-    }, [authTokens, loading])
+    // }, [authTokens, loading])
     return(
         <AuthContext.Provider value={contextData}>
             {children}

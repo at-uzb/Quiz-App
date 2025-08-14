@@ -1,95 +1,43 @@
-from .models import User
-from .serializers import *
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import TokenError
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from django.core.mail import send_mail
+from .models import User
+from .serializers import SignupSerializer, UserSerializer, UpdateProfileSerializer
 
-class SignupView(APIView):
+
+
+class SignupView(CreateAPIView):
+    queryset = User.objects.all()
     serializer_class = SignupSerializer
     permission_classes = (AllowAny,)
-    authentication_classes = (JWTAuthentication, )
 
-    def post(self, request, *args, **kwargs):
-        serializer = SignupSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            return Response({"id":user.id})
-        
-        return Response({
-                "error": True,
-                "message" : serializer.errors })
-        
 
-class LoginView(TokenObtainPairView):
+class VerifyEmail(CreateAPIView):
     permission_classes = (AllowAny,)
-    serializer_class = LoginSerializer
-    authentication_classes = (JWTAuthentication,)
-
-
-class LogoutView(APIView):
-    serializer_class = LogoutSerializer
-    permission_classes = [IsAuthenticated, ]
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=self.request.data)
-        serializer.is_valid(raise_exception=True)
-        try:
-            refresh_token = self.request.data['refresh']
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            data = {
-                'success': True,
-                'message': "You are loggout out"
-            }
-            return Response(data, status=205)
-        except TokenError:
-            return Response(status=400)
-
-
-class VerifyEmail(APIView):
-    permission_classes = (AllowAny, )
 
     def post(self, request):
-        user_id = request.data.get('id', None)
-        code = request.data.get('code', None)
+        user_id = request.data.get('id')
+        code = request.data.get('code')
 
-        if not code or not user_id:
-            return Response({"success": False}, status=400)
-        
-        try:
-            user = User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            return Response({"success": False}, status=400)
-        
-        is_valid, message = self.check(user, code)
-        if not is_valid:
-            return Response({"success": message}, status=400)
-        tokens = self.get_tokens_for_user(user)
-        tokens.update({"success": True})
-        return Response(tokens)
+        if not user_id or not code:
+            return Response({"message": "Missing parameters"}, status=400)
 
-    def get_tokens_for_user(self, user):
-        refresh = RefreshToken.for_user(user)
-
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
-    
-    @staticmethod
-    def check(user, code):
-        codes = user.verify.filter(code=code, 
-                                   expiration_time__gte=timezone.now(),
-                                   is_confirmed=False)
+        user = get_object_or_404(User, id=user_id)
+        codes = user.verify.filter(
+            code=code,
+            expiration_time__gte=timezone.now(),
+            is_confirmed=False
+        )
 
         if not codes.exists():
-            return False, False
+            return Response({"message": "Invalid or expired code"}, status=400)
 
         user.verified = True
         user.save()
@@ -98,59 +46,76 @@ class VerifyEmail(APIView):
         matched_code.is_confirmed = True
         matched_code.save()
 
-        return True, True
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "message": "Email verified successfully",
+            "refresh": str(refresh),
+            "access": str(refresh.access_token)
+        })
 
 
-class UpdateProfileView(APIView):
-    serializer_class = UpdateProfileSerializer
-    permission_classes = (IsAuthenticated, )
-    def get(self, request, *args, **kwargs):
-        pass
-    def post(self, request, *args, **kwargs):
-        pass
+class ResendVerificationCode(APIView):
+    permission_classes = (AllowAny,)
 
+    def post(self, request):
+        user_id = request.data.get('id')
+        if not user_id:
+            return Response({"message": "Missing user ID"}, status=400)
 
-class UserView(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = (JWTAuthentication,)
-    
-    def get(self, request, *args, **kwargs):
-        username = kwargs.get("username", None)
-        user = get_object_or_404(User, username=username)
+        user = get_object_or_404(User, id=user_id)
         
-        if request.user.username == user.username:
-            context = {
-                'username':user.username,
-                'profile_image':user.photo.url,
-                "email": user.email,
-                "birhday": user.date_of_birth,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "bio": user.bio
+        if user.verified:
+            return Response({"message": "User already verified"}, status=400)
 
-            }
-        else:
-            context = {
-                "username": user.username,
-                'profile_image':user.photo.url,
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "bio": user.bio
-            }
-        return Response(context)
-    
+        user.verify.all().delete()
+        code = user.create_verify_code()
+        self.send_verification_email(email=user.email,verification_code=code)
 
-class DashboardView(APIView):
-    permission_classes = [IsAuthenticated, ]
-    authentication_classes = (JWTAuthentication,)
+        return Response({"message": "New verification code sent"})
     
-    def get(self, request, *args, **kwargs):
-        user = request.user
-        context = {
-            'first_name':user.first_name,
-            'last_name':user.last_name,
-            'username':user.username,
-            'profile_image':user.photo.url,
-            'bio':user.bio,
-        }
-        return Response(context)
+    def send_verification_email(self, email, verification_code):
+        send_mail(
+            'Account Verification',
+            f'Your verification code is: {verification_code}',
+            'your_email@example.com',
+            [email]
+        )
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.data.get('refresh')
+        if not refresh_token:
+            return Response({"error": "Refresh token is required."}, status=400)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"success": "Logged out successfully."}, status=205)
+        except TokenError:
+            return Response({"error": "Invalid or expired refresh token."}, status=400)
+
+
+class UserView(RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return get_object_or_404(User, username=self.kwargs['username'])
+
+
+class UpdateProfileView(UpdateAPIView):
+    serializer_class = UpdateProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
+class ProfileView(RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

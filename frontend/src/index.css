@@ -2,12 +2,18 @@ body, html {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0; /* Light background color */
-    color: #333; /* Default text color */
+    background-color: #f0f0f0; 
+    color: #333; 
     box-sizing: border-box;
     background: #eaffee;
 }
-  
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; 
+}
+
 a {
     color: #4caf50;
     text-decoration: none;
@@ -65,6 +71,7 @@ a:hover {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex:1;
 }
   
 .line {
